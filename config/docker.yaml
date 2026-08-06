@@ -1,0 +1,15 @@
+# config/docker.yaml
+# Docker container environment overrides
+
+workspace:
+  root: "/tmp/workspaces"
+
+models:
+  text_ocr:
+    model_dir: "/app/models/text_ocr"
+  math_ocr:
+    model_dir: "/app/models/math_ocr"
+  layout:
+    model_dir: "/app/models/layout"
+  table:
+    model_dir: "/app/models/table"

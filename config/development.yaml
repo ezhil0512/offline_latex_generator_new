@@ -1,0 +1,14 @@
+# config/development.yaml
+# Development environment overrides
+
+workspace:
+  ttl_minutes: 30                 # Longer TTL during debugging
+
+logging:
+  level: "DEBUG"
+  format: "text"
+
+debug:
+  enabled: true
+  save_intermediate_images: true
+  save_ocr_results: true

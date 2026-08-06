@@ -1,0 +1,14 @@
+# config/production.yaml
+# Production environment overrides
+
+workspace:
+  ttl_minutes: 15                 # Shorter TTL to save disk space
+
+logging:
+  level: "WARNING"
+  format: "json"
+
+debug:
+  enabled: false
+  save_intermediate_images: false
+  save_ocr_results: false

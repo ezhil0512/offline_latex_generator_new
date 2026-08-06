@@ -1,0 +1,39 @@
+# Ignore Git files
+.git
+.gitignore
+.github
+
+# Ignore Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Ignore local virtual envs
+venv/
+.venv/
+env/
+OLG_ENV
+
+# Ignore downloaded model weights (mount via volume instead)
+models/
+!models/README.md
+
+# Ignore local workspaces and user files
+olg_workspaces/
+olg_*/
+temp_workspaces/
+samples/
+!samples/README.md
+
+# Ignore IDE configs
+.idea/
+.vscode/
+
+# Ignore Docker configs
+docker/
+docker-compose*.yml

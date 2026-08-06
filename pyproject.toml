@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "offline_latex_generator"
+version = "0.1.0"
+description = "Offline LaTeX Generator converts scanned PDFs/images of question papers into high-quality LaTeX completely offline."
+readme = "README.md"
+authors = [
+    { name = "Ezhilarasi" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "Flask>=3.0.0",
+    "PyYAML>=6.0.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["offline_latex_generator*"]
+

@@ -1,0 +1,61 @@
+# config/default.yaml
+# Base configuration defaults for Offline LaTeX Generator
+
+server:
+  host: "0.0.0.0"
+  port: 5000
+  max_upload_size_mb: 50
+  allowed_extensions:
+    - pdf
+    - jpg
+    - jpeg
+    - png
+    - bmp
+    - tiff
+    - tif
+
+workspace:
+  root: null                      # null uses system default temp dir
+  ttl_minutes: 30
+  cleanup_interval_seconds: 60
+
+pipeline:
+  target_dpi: 300
+  color_space: "RGB"
+  preprocessing:
+    deskew: true
+    enhance_contrast: true
+    binarize: true
+
+models:
+  device: "cpu"                   # "cpu" or "cuda" (GPU optional)
+  text_ocr:
+    engine: "paddleocr"
+    model_dir: "models/text_ocr"
+    language: "en"
+  math_ocr:
+    engine: "pix2text"
+    model_dir: "models/math_ocr"
+  layout:
+    engine: "paddleocr"
+    model_dir: "models/layout"
+  table:
+    engine: "paddleocr"
+    model_dir: "models/table"
+
+latex:
+  compiler: "pdflatex"
+  compiler_path: null             # null searches on system PATH
+  compile_runs: 2
+
+preview:
+  default_mode: "html"            # "html" or "pdf"
+
+logging:
+  level: "INFO"                   # DEBUG, INFO, WARNING, ERROR
+  format: "json"                  # "json" or "text"
+
+debug:
+  enabled: false
+  save_intermediate_images: false
+  save_ocr_results: false

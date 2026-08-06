@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/development/Dockerfile
+    container_name: offline_latex_generator_dev
+    ports:
+      - "5000:5000"
+      - "5678:5678"
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./models:/app/models
+      - ./samples:/app/samples
+    environment:
+      - OLG_ENV=development
+      - WORKSPACE_ROOT=/tmp/workspaces
+    restart: unless-stopped
+
