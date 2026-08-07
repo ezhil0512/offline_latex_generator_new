@@ -1,12 +1,24 @@
 import json
 import shutil
 import tempfile
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 from offline_latex_generator.config import config
 from offline_latex_generator.utils.logger import logger
+
+
+def _utc_now() -> datetime:
+    """Return the current UTC time with high-precision.
+
+    Uses ``time.time()`` instead of ``datetime.now(timezone.utc)`` because
+    on Windows the latter relies on ``GetSystemTimeAsFileTime`` which only
+    has ~15.6 ms resolution.  ``time.time()`` uses the precise variant and
+    therefore avoids duplicate timestamps in rapid-fire calls.
+    """
+    return datetime.fromtimestamp(time.time(), tz=timezone.utc)
 
 class WorkspaceManager:
     """Manages the lifecycle of temporary job workspaces."""
@@ -46,7 +58,7 @@ class WorkspaceManager:
         workspace_path.mkdir(parents=True, exist_ok=True)
 
         # Calculate timestamps
-        now = datetime.now(timezone.utc)
+        now = _utc_now()
         ttl_minutes = int(config.get("workspace.ttl_minutes", 30))
         expires_at = now + timedelta(minutes=ttl_minutes)
 
@@ -101,10 +113,60 @@ class WorkspaceManager:
         manifest_path = workspace_path / "manifest.json"
         
         # Update modification timestamp
-        manifest["updated_at"] = datetime.now(timezone.utc).isoformat()
+        manifest["updated_at"] = _utc_now().isoformat()
 
         with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
+
+    def save_file(self, job_id: str, file_stream, filename: str) -> str:
+        """Saves an uploaded file to the job's workspace.
+        
+        Returns the secured filename.
+        Does NOT return the filesystem path.
+        """
+        # Validate job ID
+        if not job_id or not job_id.isalnum():
+            raise ValueError(f"Invalid job ID: {job_id}")
+
+        workspace_path = self._get_workspace_path(job_id)
+        if not workspace_path.exists():
+            raise FileNotFoundError(f"Workspace for job {job_id} does not exist")
+
+        # Secure filename
+        from werkzeug.utils import secure_filename
+        safe_filename = secure_filename(filename)
+        if not safe_filename:
+            raise ValueError("Filename is empty after applying secure_filename")
+
+        # Resolve paths to prevent directory traversal
+        target_path = (workspace_path / safe_filename).resolve()
+        resolved_workspace = workspace_path.resolve()
+        
+        try:
+            # Check directory traversal
+            target_path.relative_to(resolved_workspace)
+        except ValueError:
+            raise ValueError("Directory traversal attempt detected")
+
+        # Check if file already exists
+        if target_path.exists():
+            raise FileExistsError(f"File '{safe_filename}' already exists in workspace")
+
+        # Save the file
+        file_stream.save(target_path)
+        logger.info(f"Saved file {safe_filename} in workspace for job {job_id}")
+
+        # Update manifest
+        manifest = self.load_manifest(job_id)
+        if manifest is not None:
+            if "files" not in manifest:
+                manifest["files"] = []
+            if safe_filename not in manifest["files"]:
+                manifest["files"].append(safe_filename)
+            self.save_manifest(job_id, manifest)
+
+        return safe_filename
+
 
     def delete_workspace(self, job_id: str) -> bool:
         """Deletes a job's workspace immediately.

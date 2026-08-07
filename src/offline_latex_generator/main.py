@@ -13,6 +13,10 @@ def create_app() -> Flask:
     # Register blueprints
     app.register_blueprint(workspace_bp)
     
+    @app.errorhandler(413)
+    def request_entity_too_large(error):
+        return {"error": "File too large"}, 413
+    
     @app.route("/health")
     def health():
         return {"status": "healthy", "env": config.env}
