@@ -118,6 +118,41 @@ class WorkspaceManager:
         with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
 
+    def get_workspace_file_path(self, job_id: str, filename: str) -> Path:
+        """Returns the safe resolved Path to a file in a job's workspace.
+        Raises ValueError if job ID is invalid, directory traversal is detected,
+        or FileNotFoundError if the workspace or file does not exist.
+        This is for internal package use and must NOT be returned in API payloads.
+        """
+        if not job_id or not job_id.isalnum():
+            raise ValueError(f"Invalid job ID: {job_id}")
+
+        workspace_path = self._get_workspace_path(job_id)
+        if not workspace_path.exists():
+            raise FileNotFoundError(f"Workspace for job {job_id} does not exist")
+
+        # Secure and sanitize the filename
+        if "/" in filename or "\\" in filename or ".." in filename:
+            raise ValueError("Directory traversal attempt detected")
+
+        from werkzeug.utils import secure_filename
+        safe_filename = secure_filename(filename)
+        if not safe_filename:
+            raise ValueError("Invalid filename")
+
+        target_path = (workspace_path / safe_filename).resolve()
+        resolved_workspace = workspace_path.resolve()
+
+        try:
+            target_path.relative_to(resolved_workspace)
+        except ValueError:
+            raise ValueError("Directory traversal attempt detected")
+
+        if not target_path.exists():
+            raise FileNotFoundError(f"File '{safe_filename}' not found in workspace")
+
+        return target_path
+
     def save_file(self, job_id: str, file_stream, filename: str) -> str:
         """Saves an uploaded file to the job's workspace.
         
