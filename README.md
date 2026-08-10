@@ -1,20 +1,24 @@
 # Offline LaTeX Generator
 
-An offline application that converts scanned PDFs and images of question papers into high-quality LaTeX while preserving the original document structure.
+An offline application that converts scanned PDFs and images of question papers
+into high-quality LaTeX while preserving the original document structure.
 
-The entire application runs locally without using any cloud service or external API.
+The entire application runs locally without using any cloud service or external
+API.
 
 ---
 
 # Project Status
 
-🚧 **Under Active Development**
+Under Active Development
 
 Current Phase:
 
-- ✅ Project Architecture
-- ✅ Project Scaffolding
-- 🔄 Workspace & Processing Pipeline (Next)
+- Complete: Project Architecture
+- Complete: Project Scaffolding
+- Complete: Workspace Lifecycle and Upload Validation
+- Complete: Phase 4 PDF and Image Loader
+- Next: Phase 5 Processing Pipeline
 
 Implementation is being developed one feature at a time.
 
@@ -22,9 +26,17 @@ Every feature is manually verified before moving to the next phase.
 
 ---
 
-# Features (Planned)
+# Features
+
+Implemented:
 
 - PDF and Image Upload
+- Workspace Lifecycle
+- Upload Validation
+- PDF and Image Loading
+
+Planned:
+
 - Automatic Question Detection
 - Question Segmentation
 - MCQ Option Detection
@@ -89,13 +101,12 @@ offline_latex_generator/
 │       ├── preview/
 │       ├── cleanup/
 │       └── utils/
-
 ├── config/
 ├── docker/
 ├── docs/
 ├── models/
 ├── samples/
-├── tests/
+└── tests/
 ```
 
 ---
@@ -106,9 +117,12 @@ This application never uploads any user data.
 
 All processing is performed locally.
 
-Uploaded PDFs, images, OCR results, temporary files, generated LaTeX, generated PDFs, debug artifacts, and ZIP files exist only inside a temporary workspace and are automatically removed after download, timeout, or failure.
+Uploaded PDFs, images, OCR results, temporary files, generated LaTeX, generated
+PDFs, debug artifacts, and ZIP files exist only inside a temporary workspace and
+are automatically removed after download, timeout, or failure.
 
-Only source code, configuration, documentation, tests, and local models remain permanently.
+Only source code, configuration, documentation, tests, and local models remain
+permanently.
 
 ---
 
@@ -116,19 +130,41 @@ Only source code, configuration, documentation, tests, and local models remain p
 
 Every feature follows the same workflow:
 
-```
+```text
 Implement
-    ↓
-Manual Verification
-    ↓
-User Approval
-    ↓
-Git Commit
-    ↓
-Next Feature
+  -> Manual Verification
+  -> User Approval
+  -> Git Commit
+  -> Next Feature
 ```
 
 No feature is considered complete until it has been manually verified.
+
+---
+
+# Phase 4 Status
+
+Phase 4 is complete.
+
+Implemented scope:
+
+- `PDFLoader` loads uploaded workspace PDFs into in-memory Pillow images.
+- `ImageLoader` loads uploaded workspace images into in-memory Pillow images.
+- Loaders accept only `job_id` and filename, and resolve files through the
+  workspace manager.
+- PDF conversion uses `pdf2image` with Poppler, including optional
+  `POPPLER_PATH` configuration.
+
+Phase 4 does not include preprocessing, OCR, layout detection, question
+detection, segmentation, LaTeX generation, preview generation, or export
+workflows. Those belong to later phases, starting with Phase 5.
+
+Latest verification:
+
+```text
+pytest: 30 passed / 30 collected
+Manual PDFLoader verification: real 3-page PDF loaded as 3 RGB pages
+```
 
 ---
 
