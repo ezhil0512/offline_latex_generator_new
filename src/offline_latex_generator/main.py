@@ -26,6 +26,20 @@ def create_app() -> Flask:
 
 
 if __name__ == "__main__":
+    import sys
+    import logging
+
+    # Werkzeug writes its development WARNING banner to stderr by default.
+    # On Windows, PowerShell treats any stderr output from a native command as a
+    # NativeCommandError, which immediately kills the Python process. Redirect
+    # Werkzeug's logger to stdout so all server output stays on a single stream.
+    _werkzeug_logger = logging.getLogger("werkzeug")
+    _werkzeug_logger.handlers.clear()
+    _werkzeug_handler = logging.StreamHandler(sys.stdout)
+    _werkzeug_handler.setFormatter(logging.Formatter("%(message)s"))
+    _werkzeug_logger.addHandler(_werkzeug_handler)
+    _werkzeug_logger.propagate = False
+
     app = create_app()
     app.run(
         host=config.get("server.host", "0.0.0.0"),
