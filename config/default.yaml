@@ -27,6 +27,9 @@ pipeline:
     enhance_contrast: true
     binarize: true
 
+pdf:
+  poppler_path: null              # Optional path to Poppler bin directory; POPPLER_PATH overrides this.
+
 models:
   device: "cpu"                   # "cpu" or "cuda" (GPU optional)
   text_ocr:

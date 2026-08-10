@@ -169,6 +169,26 @@ Configuration
 
 ---
 
+# PDF Test Dependency
+
+PDF loading uses `pdf2image`, which shells out to Poppler tools such as
+`pdfinfo` and `pdftoppm`.
+
+On Windows, do not rely on MiKTeX-provided PDF tools for tests. The test suite
+will provision a project-local Poppler build under `.cache/` when needed and set
+`POPPLER_PATH` for the test process.
+
+To prepare Poppler manually for local development, run:
+
+```powershell
+python scripts\install_poppler_windows.py
+```
+
+The script prints the `POPPLER_PATH` value. The downloaded files stay in
+`.cache/` and must not be committed.
+
+---
+
 # License
 
 This project is licensed under the MIT License.

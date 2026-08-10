@@ -33,6 +33,7 @@ class PDFLoader:
 
         # Read DPI from config (default 300)
         dpi = int(config.get("pipeline.target_dpi", 300))
+        poppler_path = config.get("pdf.poppler_path")
 
         try:
             logger.info(f"Loading PDF {filename} for job {job_id} at {dpi} DPI")
@@ -40,7 +41,8 @@ class PDFLoader:
             images = pdf2image.convert_from_path(
                 str(pdf_path),
                 dpi=dpi,
-                output_folder=str(workspace_path)
+                output_folder=str(workspace_path),
+                poppler_path=poppler_path
             )
             
             loaded_images = []

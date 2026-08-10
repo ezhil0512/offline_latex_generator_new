@@ -45,10 +45,20 @@ class Config:
                 self._config_data["workspace"] = {}
             self._config_data["workspace"]["root"] = workspace_root
 
+        poppler_path = os.getenv("POPPLER_PATH")
+        if poppler_path:
+            if "pdf" not in self._config_data:
+                self._config_data["pdf"] = {}
+            self._config_data["pdf"]["poppler_path"] = poppler_path
+
     def get(self, key: str, default: Any = None) -> Any:
         """Retrieves a config value by dot-notation key (e.g. 'server.port')."""
         if key == "workspace.root":
             env_val = os.getenv("WORKSPACE_ROOT")
+            if env_val:
+                return env_val
+        if key == "pdf.poppler_path":
+            env_val = os.getenv("POPPLER_PATH")
             if env_val:
                 return env_val
 
@@ -63,4 +73,3 @@ class Config:
 
 # Global configuration instance
 config = Config()
-

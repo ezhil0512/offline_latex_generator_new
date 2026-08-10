@@ -88,6 +88,7 @@ debug/
 artifacts/
 temp/
 cache/
+scripts/verify_phase4_pdf.py
 
 # ==========================================================
 # Generated Files

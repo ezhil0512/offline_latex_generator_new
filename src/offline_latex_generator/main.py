@@ -43,5 +43,7 @@ if __name__ == "__main__":
     app = create_app()
     app.run(
         host=config.get("server.host", "0.0.0.0"),
-        port=config.get("server.port", 5000)
+        port=config.get("server.port", 5000),
+        debug=False,
+        use_reloader=False,
     )
