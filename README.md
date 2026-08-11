@@ -18,7 +18,8 @@ Current Phase:
 - Complete: Project Scaffolding
 - Complete: Workspace Lifecycle and Upload Validation
 - Complete: Phase 4 PDF and Image Loader
-- Next: Phase 5 Processing Pipeline
+- Complete: Phase 5 Processing Pipeline
+- Next: Phase 6 (not started)
 
 Implementation is being developed one feature at a time.
 
@@ -159,28 +160,23 @@ Phase 4 does not include preprocessing, OCR, layout detection, question
 detection, segmentation, LaTeX generation, preview generation, or export
 workflows. Those belong to later phases, starting with Phase 5.
 
+# Phase 5 Status
+
+Phase 5 is complete.
+
+Implemented scope:
+
+- Contrast enhancement
+- Binarization
+- `deskew` flag is recognized by the pipeline, but is currently a no-op because
+  the frozen architecture does not include a deskew implementation.
+
 Latest verification:
 
 ```text
-pytest: 30 passed / 30 collected
-Manual PDFLoader verification: real 3-page PDF loaded as 3 RGB pages
-```
-
----
-
-# Technology Stack
-
-Frontend
-
-- HTML
-- CSS
-- JavaScript
-
-Backend
-
-- Flask
-
-OCR
+pytest: 36 passed / 36 collected
+Phase 5 committed and pushed
+Phase 6 has not started
 
 - PaddleOCR
 - Pix2Text
