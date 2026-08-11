@@ -220,6 +220,39 @@ Configuration
 
 ---
 
+# Phase 7 Status
+
+Phase 7 question detection and segmentation slice is complete.
+
+Implemented scope:
+
+- Added a minimal OCR text block data structure for question analysis.
+- Added basic question detection for simple patterns such as `1.`, `1)`, and `Question 1:`.
+- Added deterministic question segmentation that produces structured question regions.
+
+Latest verification:
+
+```text
+pytest: 3 passed / 3 collected
+Manual verification: 5/5 representative OCR-style cases passed
+```
+
+Commit:
+
+```text
+27ba2b9
+```
+
+Phase 7 remains an incremental phase. MCQ option detection, full layout detection,
+formula/table/diagram processing, and later structural analysis work are not yet
+implemented.
+
+Next:
+
+- Phase 7 remaining structural analysis work
+
+---
+
 # PDF Test Dependency
 
 PDF loading uses `pdf2image`, which shells out to Poppler tools such as
