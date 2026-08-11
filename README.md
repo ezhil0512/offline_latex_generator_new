@@ -19,7 +19,8 @@ Current Phase:
 - Complete: Workspace Lifecycle and Upload Validation
 - Complete: Phase 4 PDF and Image Loader
 - Complete: Phase 5 Processing Pipeline
-- Next: Phase 6 (not started)
+- Complete: Phase 6 OCR Foundation/Integration
+- Next: Phase 7 (not started)
 
 Implementation is being developed one feature at a time.
 
@@ -176,7 +177,25 @@ Latest verification:
 ```text
 pytest: 36 passed / 36 collected
 Phase 5 committed and pushed
-Phase 6 has not started
+```
+
+# Phase 6 Status
+
+Phase 6 OCR foundation/integration is complete.
+
+Implemented scope:
+
+- OCR router added
+- PaddleOCR recognizer wrapper added
+- Pix2Text recognizer wrapper added
+
+Latest verification:
+
+```text
+pytest: 8 passed / 8 collected
+full suite: 44 passed / 44 collected
+Phase 6 committed and pushed: not yet
+```
 
 - PaddleOCR
 - Pix2Text
