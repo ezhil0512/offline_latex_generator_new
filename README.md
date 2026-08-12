@@ -257,6 +257,12 @@ Manual verification: 6/6 cases passed
   ✓ Question-region association with mixed patterns
 ```
 
+Commit:
+
+```text
+27ba2b9
+```
+
 Phase 7 MCQ option detection is complete. Full layout detection, formula/table/diagram processing, and later structural analysis work are not yet implemented.
 
 Next:
