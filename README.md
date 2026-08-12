@@ -26,7 +26,8 @@ Current Phase:
 - Complete: Phase 10 Offline OCR Routing
 - Complete: Phase 11 Text Recognition
 - Complete: Phase 12 Formula Recognition
-- Next: Phase 13 Table Recognition
+- Complete: Phase 13 Table Recognition
+- Next: Phase 14 Diagram Extraction
 
 Implementation is being developed one feature at a time.
 
@@ -50,10 +51,10 @@ Implemented:
 - Offline OCR Routing
 - Text Recognition
 - Formula Recognition
+- Table Recognition
 
 Planned:
 
-- Table Recognition
 - Diagram Extraction
 - Structured JSON Generation
 - LaTeX Generation
@@ -410,7 +411,41 @@ Out of scope for Phase 12:
 
 Next:
 
-- Phase 13 Table Recognition
+- Phase 14 Diagram Extraction
+
+---
+
+# Phase 13 Status
+
+Phase 13 Table Recognition is complete.
+
+Implemented scope:
+
+- Table model configuration: `models.table` in `config/default.yaml` specifies `engine: "paddleocr"` and `model_dir: "models/table"`.
+- Recognizer factory: `get_recognizer("table")` resolves to `PaddleOCRRecognizer()` via the existing `models.table.engine` fallback lookup in the recognizer factory.
+- OCR Router dispatch: `OCRRouter.route("table", image)` is a supported task (`SUPPORTED_TASKS` includes `"table"`) and dispatches directly to `PaddleOCRRecognizer`.
+- Existing table routing and configuration already provide the current offline table-recognition capability; no new `TableRegion` DTO or table API was introduced because no production consumer currently requires one.
+- No Python implementation changes were required for Phase 13.
+
+Latest verification:
+
+```text
+pytest: 96/96 passed (existing test suite; table engine fallback and routing
+        are covered by tests/unit/test_recognizer_fixes.py and
+        tests/unit/test_ocr_region_router.py)
+```
+
+Out of scope for Phase 13:
+
+- Diagram Extraction (Phase 14)
+- Table structure parsing / specialized `TableRegion` representation
+- Pipeline and structurer integration
+- LaTeX generation
+- Preview/export
+
+Next:
+
+- Phase 14 Diagram Extraction
 
 ---
 
