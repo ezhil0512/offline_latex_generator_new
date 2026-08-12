@@ -24,7 +24,8 @@ Current Phase:
 - Complete: Phase 8 Layout Detection
 - Complete: Phase 9 Formula Reconstruction
 - Complete: Phase 10 Offline OCR Routing
-- Next: Phase 11 Text Recognition
+- Complete: Phase 11 Text Recognition
+- Next: Phase 12 Formula Recognition
 
 Implementation is being developed one feature at a time.
 
@@ -46,10 +47,10 @@ Implemented:
 - Layout Detection
 - Formula Reconstruction
 - Offline OCR Routing
+- Text Recognition
 
 Planned:
 
-- Text Recognition
 - Formula Recognition
 - Table Recognition
 - Diagram Extraction
@@ -349,9 +350,37 @@ Out of scope for Phase 10:
 - LaTeX generation
 - Preview/export
 
+# Phase 11 Status
+
+Phase 11 Text Recognition is complete.
+
+Implemented scope:
+
+- Engine wrapper: `PaddleOCRRecognizer` serves as the text OCR engine wrapper for local offline recognition.
+- Language & Model configuration: Configured for English (`en`) text recognition via `models.text_ocr` in `config/default.yaml`.
+- OCR Router dispatch: `OCRRouter.route("text", image)` dispatches task `"text"` directly to `PaddleOCRRecognizer`.
+- Region-aware text routing: `OCRRouter.route_region(page_image, element)` automatically routes `LayoutElement` objects (`TEXT`, `HEADING`, `QUESTION`, `OPTION`) to the text OCR engine.
+- Image format compatibility: Internal PIL-to-NumPy array conversion (`np.array(image)`) ensures PaddleOCR compatibility while preserving PIL `Image.Image` public input signatures.
+- Local architecture preservation: Processing remains 100% offline and local without external APIs.
+- API Design: No new text-recognition API was introduced because no production consumer requires one, and no Python implementation changes were required for Phase 11.
+
+Latest verification:
+
+```text
+pytest: 96/96 passed (existing test suite covering recognizers, OCR router, and region router)
+Phase 10 verification: 9/9 manual test cases passed
+```
+
+Out of scope for Phase 11:
+
+- Formula Recognition (Phase 12)
+- Pipeline and structurer integration
+- LaTeX generation
+- Preview/export
+
 Next:
 
-- Phase 11 Text Recognition
+- Phase 12 Formula Recognition
 
 ---
 
