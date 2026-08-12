@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from PIL import Image
+import numpy as np
 
 from offline_latex_generator.config import config
 from offline_latex_generator.utils.logger import logger
@@ -37,7 +38,9 @@ class PaddleOCRRecognizer(BaseRecognizer):
         if not isinstance(image, Image.Image):
             raise TypeError("Expected a Pillow Image for recognizer")
         try:
-            result = self._ocr.ocr(image, cls=False)
+            # Convert PIL Image to numpy array (PaddleOCR requires numpy.ndarray)
+            img_array = np.array(image)
+            result = self._ocr.ocr(img_array, cls=False)
             return result
         except Exception as exc:
             logger.error(f"PaddleOCR recognition failed: {exc}")
@@ -68,7 +71,11 @@ class Pix2TextRecognizer(BaseRecognizer):
 
 def get_recognizer(task: str) -> BaseRecognizer:
     task = task.lower()
+    # Try task_ocr pattern first (text_ocr, math_ocr)
     engine = config.get(f"models.{task}_ocr.engine")
+    # Fallback to simple task pattern (layout, table)
+    if engine is None:
+        engine = config.get(f"models.{task}.engine")
     if task == "math":
         return Pix2TextRecognizer()
     if engine == "paddleocr":
