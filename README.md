@@ -21,7 +21,8 @@ Current Phase:
 - Complete: Phase 5 Processing Pipeline
 - Complete: Phase 6 OCR Foundation/Integration
 - Complete: Phase 7 Question Detection, Segmentation, and MCQ Option Detection
-- Next: Phase 8 (Layout Detection)
+- Complete: Phase 8 Layout Detection
+- Next: Phase 9 Formula Reconstruction
 
 Implementation is being developed one feature at a time.
 
@@ -263,11 +264,38 @@ Commit:
 27ba2b9
 ```
 
-Phase 7 MCQ option detection is complete. Full layout detection, formula/table/diagram processing, and later structural analysis work are not yet implemented.
+Phase 7 MCQ option detection is complete.
+
+# Phase 8 Status
+
+Phase 8 Layout Detection is complete.
+
+Implemented scope:
+- Data structures: `OCRBlock`, `LayoutElement`, and `LayoutRegionType` constants.
+- `parse_ocr_blocks()`: Converts raw PaddleOCR nested-list output to normalized blocks.
+- `detect_layout()`: Classifies blocks into structural regions.
+- Deterministic classification: Identifies regions as `TEXT`, `HEADING`, `QUESTION`, `OPTION`, or `UNKNOWN`.
+- Bounding-box and confidence preservation: Coordinates are normalized and tracked through to the layout elements.
+
+Phase 7 components (`question_detector`, `question_segmenter`, `option_detector`) were intentionally NOT refactored to consume `LayoutElement` because there is no active production consumer yet. That integration belongs to the future `structurer` and `pipeline` phases.
+
+Latest verification:
+
+```text
+pytest Phase 8 focused: 29/29 passed
+pytest Full related suite: 79/79 passed
+Manual verification: 9/9 cases passed
+```
+
+Future work remaining out of scope for Phase 8:
+- Formula, table, and diagram processing
+- Block merging (merging adjacent layout blocks of the same type)
+- Pipeline orchestration
+- LaTeX generation
 
 Next:
 
-- Phase 7 remaining structural analysis work
+- Phase 9 Formula Reconstruction
 
 ---
 
