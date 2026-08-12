@@ -25,7 +25,8 @@ Current Phase:
 - Complete: Phase 9 Formula Reconstruction
 - Complete: Phase 10 Offline OCR Routing
 - Complete: Phase 11 Text Recognition
-- Next: Phase 12 Formula Recognition
+- Complete: Phase 12 Formula Recognition
+- Next: Phase 13 Table Recognition
 
 Implementation is being developed one feature at a time.
 
@@ -48,10 +49,10 @@ Implemented:
 - Formula Reconstruction
 - Offline OCR Routing
 - Text Recognition
+- Formula Recognition
 
 Planned:
 
-- Formula Recognition
 - Table Recognition
 - Diagram Extraction
 - Structured JSON Generation
@@ -378,9 +379,38 @@ Out of scope for Phase 11:
 - LaTeX generation
 - Preview/export
 
+# Phase 12 Status
+
+Phase 12 Formula Recognition is complete.
+
+Implemented scope:
+
+- Math OCR Engine: `Pix2TextRecognizer` serves as the offline math formula recognition wrapper using Pix2Text (`pix2text.Pix2Text`).
+- Configuration: Configured via `models.math_ocr` in `config/default.yaml`.
+- OCR Router dispatch: `OCRRouter.route("math", image)` dispatches task `"math"` directly to `Pix2TextRecognizer`.
+- Region-aware formula routing: `OCRRouter.route_region(page_image, region)` automatically identifies `FormulaRegion` objects (Phase 9) and routes them to `Pix2TextRecognizer`.
+- Image cropping: Page images are safely cropped to `FormulaRegion.bbox` before executing math formula recognition.
+- Architecture preservation: The existing Phase 9 and Phase 10 architecture already provided the full formula-recognition path; no new formula-recognition API or production code changes were required.
+- Engine freeze: `Pix2Text` remains the math OCR engine; no alternative OCR engine was added, and no real model inference was added to unit tests.
+
+Latest verification:
+
+```text
+pytest: 96/96 passed (existing test suite covering recognizers, formula reconstructor, OCR router, and region router)
+Phase 10 verification: 9/9 manual test cases passed
+```
+
+Out of scope for Phase 12:
+
+- Table Recognition (Phase 13)
+- Diagram Extraction
+- Pipeline and structurer integration
+- LaTeX generation
+- Preview/export
+
 Next:
 
-- Phase 12 Formula Recognition
+- Phase 13 Table Recognition
 
 ---
 
