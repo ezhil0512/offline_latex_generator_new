@@ -22,7 +22,8 @@ Current Phase:
 - Complete: Phase 6 OCR Foundation/Integration
 - Complete: Phase 7 Question Detection, Segmentation, and MCQ Option Detection
 - Complete: Phase 8 Layout Detection
-- Next: Phase 9 Formula Reconstruction
+- Complete: Phase 9 Formula Reconstruction
+- Next: Phase 10 Offline OCR Routing
 
 Implementation is being developed one feature at a time.
 
@@ -41,11 +42,11 @@ Implemented:
 - Automatic Question Detection
 - Question Segmentation
 - MCQ Option Detection (3 patterns: (A), A), A.)
+- Layout Detection
+- Formula Reconstruction
 
 Planned:
 
-- Layout Detection
-- Formula Reconstruction
 - Offline OCR Routing
 - Text Recognition
 - Formula Recognition
@@ -293,9 +294,35 @@ Future work remaining out of scope for Phase 8:
 - Pipeline orchestration
 - LaTeX generation
 
+# Phase 9 Status
+
+Phase 9 Formula Reconstruction is complete.
+
+Implemented scope:
+
+- Data structure: `FormulaRegion` immutable dataclass (`block_indices`, `bbox`, `confidence`, `texts`).
+- `merge_formula_fragments()`: Deterministically merges spatially adjacent formula fragments belonging to the same formula line.
+- Preserved attributes: Exact bounding-box spatial union `(min_x, min_y, max_x, max_y)`, all original constituent block indices, fragment text ordering, and mean OCR confidence.
+- Architecture preservation: Phase 8 contracts (`LayoutRegionType`) remained completely unchanged. Phase 7/8 components were left untouched.
+
+Latest verification:
+
+```text
+pytest: 87/87 passed
+Manual verification: 10/10 cases passed
+Commit: 45764ba
+```
+
+Out of scope for Phase 9:
+
+- Pix2Text execution
+- Image cropping
+- Pipeline and structurer integration
+- Table and diagram recognition
+
 Next:
 
-- Phase 9 Formula Reconstruction
+- Phase 10 Offline OCR Routing
 
 ---
 
