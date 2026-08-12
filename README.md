@@ -20,7 +20,8 @@ Current Phase:
 - Complete: Phase 4 PDF and Image Loader
 - Complete: Phase 5 Processing Pipeline
 - Complete: Phase 6 OCR Foundation/Integration
-- Next: Phase 7 (not started)
+- Complete: Phase 7 Question Detection, Segmentation, and MCQ Option Detection
+- Next: Phase 8 (Layout Detection)
 
 Implementation is being developed one feature at a time.
 
@@ -36,12 +37,12 @@ Implemented:
 - Workspace Lifecycle
 - Upload Validation
 - PDF and Image Loading
+- Automatic Question Detection
+- Question Segmentation
+- MCQ Option Detection (3 patterns: (A), A), A.)
 
 Planned:
 
-- Automatic Question Detection
-- Question Segmentation
-- MCQ Option Detection
 - Layout Detection
 - Formula Reconstruction
 - Offline OCR Routing
@@ -222,30 +223,41 @@ Configuration
 
 # Phase 7 Status
 
-Phase 7 question detection and segmentation slice is complete.
+Phase 7 MCQ option detection slice is complete.
 
 Implemented scope:
 
-- Added a minimal OCR text block data structure for question analysis.
-- Added basic question detection for simple patterns such as `1.`, `1)`, and `Question 1:`.
-- Added deterministic question segmentation that produces structured question regions.
+**Question Detection and Segmentation:**
+- Added a minimal OCR text block data structure for question analysis
+- Added basic question detection for simple patterns such as `1.`, `1)`, and `Question 1:`
+- Added deterministic question segmentation that produces structured question regions
+
+**MCQ Option Detection:**
+- Implemented deterministic MCQ option detection with 3 supported patterns:
+  - `(A)`, `(B)`, `(C)`, `(D)` — parentheses pattern
+  - `A)`, `B)`, `C)`, `D)` — closing parenthesis pattern
+  - `A. [text]`, `B. [text]`, `C. [text]` — period pattern (with text validation)
+- Case normalization: lowercase options `(a)`, `(b)`, etc. are normalized to uppercase
+- False-positive filtering: non-option patterns correctly ignored (numeric labels, special characters, sentence-ending periods)
+- Question-region association: options automatically linked to their containing question regions
+- Block-index tracking: original document block indices preserved and adjusted for traceability
 
 Latest verification:
 
 ```text
-pytest: 3 passed / 3 collected
-Manual verification: 5/5 representative OCR-style cases passed
+pytest Phase 7: 24/24 passed (MCQ option detection tests)
+pytest Existing: 3/3 passed (question detector/segmenter regression)
+pytest Total: 27/27 passed
+Manual verification: 6/6 cases passed
+  ✓ Parentheses pattern (A), (B), (C), (D)
+  ✓ Closing paren pattern A), B), C), D)
+  ✓ Period pattern A. B. C. D. (with text)
+  ✓ Lowercase normalization (a), (b), (c), (d) → A, B, C, D
+  ✓ Normal text filtering (no false positives)
+  ✓ Question-region association with mixed patterns
 ```
 
-Commit:
-
-```text
-27ba2b9
-```
-
-Phase 7 remains an incremental phase. MCQ option detection, full layout detection,
-formula/table/diagram processing, and later structural analysis work are not yet
-implemented.
+Phase 7 MCQ option detection is complete. Full layout detection, formula/table/diagram processing, and later structural analysis work are not yet implemented.
 
 Next:
 
