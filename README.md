@@ -23,7 +23,8 @@ Current Phase:
 - Complete: Phase 7 Question Detection, Segmentation, and MCQ Option Detection
 - Complete: Phase 8 Layout Detection
 - Complete: Phase 9 Formula Reconstruction
-- Next: Phase 10 Offline OCR Routing
+- Complete: Phase 10 Offline OCR Routing
+- Next: Phase 11 Text Recognition
 
 Implementation is being developed one feature at a time.
 
@@ -44,10 +45,10 @@ Implemented:
 - MCQ Option Detection (3 patterns: (A), A), A.)
 - Layout Detection
 - Formula Reconstruction
+- Offline OCR Routing
 
 Planned:
 
-- Offline OCR Routing
 - Text Recognition
 - Formula Recognition
 - Table Recognition
@@ -320,9 +321,37 @@ Out of scope for Phase 9:
 - Pipeline and structurer integration
 - Table and diagram recognition
 
+# Phase 10 Status
+
+Phase 10 Offline OCR Routing is complete.
+
+Implemented scope:
+
+- Region-aware OCR routing: Extended `OCRRouter` with `route_region()` method.
+- Layout element dispatch: `LayoutElement` objects automatically routed to `"text"` OCR engine.
+- Formula region dispatch: `FormulaRegion` objects automatically routed to `"math"` OCR engine.
+- Image cropping & normalization: Floating-point bounding box coordinates are safely floor/ceil normalized and clamped to page image boundaries `(0, 0, width, height)`.
+- Architecture preservation: Existing `route()` method contract and exception handling (`RecognizerError`) remain strictly preserved.
+
+Latest verification:
+
+```text
+pytest: 96/96 passed
+Manual verification: 9/9 cases passed
+Commit: 21d4b39
+```
+
+Out of scope for Phase 10:
+
+- Pipeline orchestration
+- Structurer integration
+- New OCR engines
+- LaTeX generation
+- Preview/export
+
 Next:
 
-- Phase 10 Offline OCR Routing
+- Phase 11 Text Recognition
 
 ---
 
