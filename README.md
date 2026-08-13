@@ -30,7 +30,8 @@ Current Phase:
 - Complete: Phase 14 Diagram Extraction
 - Complete: Phase 15 Structured JSON Generation
 - Complete: Phase 16 LaTeX Generation
-- Next: Phase 17 LaTeX Validation
+- Complete: Phase 17 LaTeX Validation
+- Next: Phase 18 HTML Preview
 
 Implementation is being developed one feature at a time.
 
@@ -58,10 +59,10 @@ Implemented:
 - Diagram Extraction
 - Structured JSON Generation
 - LaTeX Generation
+- LaTeX Validation
 
 Planned:
 
-- LaTeX Validation
 - HTML Preview
 - PDF Preview
 - ZIP Export
@@ -569,6 +570,47 @@ Out of scope for Phase 16:
 Next:
 
 - Phase 17 LaTeX Validation
+
+---
+
+# Phase 17 Status
+
+Phase 17 LaTeX Validation is complete.
+
+Implemented scope:
+
+- DTO Definition: Defines immutable `LaTeXValidationError` carrying severity, message, line, and column.
+- Static LaTeX syntax validation: Lints in-memory LaTeX strings for unmatched braces `{` and `}`, unbalanced math delimiters (`$`, `$$`, `\[`, `\]`), mismatched environments (e.g. `\begin{enumerate}` closed by `\end{itemize}`), and unescaped special characters outside math mode.
+- Valid LaTeX comments/escaped characters: Safely bypasses unescaped control characters inside valid comment lines and ignores escaped character sequences like `\%` or `\_` to prevent false positives.
+- Local compiler-based validation: Executes the configured compiler binary (`pdflatex`, etc.) locally and offline on a temporary `.tex` file in a temporary scratch directory.
+- Graceful missing compiler fallback: Automatically skips compilation and returns a graceful warning message if the compiler binary is not found on the system.
+- Log file parsing: Extracts compiler error details and exact line numbers from `.log` files when compilation fails.
+- Diagram placeholder strategy: Resolves missing diagram dependencies (e.g. `images/diagram_001.png`) by programmatically generating 1×1 transparent PNG placeholder files in memory at compile time.
+- Clean execution footprint: Automatically cleans up all temporary compiler output and placeholder files inside the temporary validation workspace, leaving the project folder unmodified.
+- Science/math preservation: Physics, chemistry, math, and biology formulas remain completely untouched.
+- Architecture isolation: Integrates cleanly with no changes to completed Phase 7–16 contracts or generation logic.
+
+Latest verification:
+
+```text
+pytest Phase 17 focused: 27/27 passed
+pytest Full suite:       313/313 passed
+Manual verification:     29/29 checks passed (with real pdflatex verified)
+Commit: 911f2bc
+```
+
+Out of scope for Phase 17:
+
+- Image export/download packaging
+- PDF preview
+- Pipeline integration
+- Web endpoint integration
+- Cloud/external validation services
+- Modifying generated LaTeX
+
+Next:
+
+- Phase 18 HTML Preview
 
 ---
 
