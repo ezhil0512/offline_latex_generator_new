@@ -27,7 +27,8 @@ Current Phase:
 - Complete: Phase 11 Text Recognition
 - Complete: Phase 12 Formula Recognition
 - Complete: Phase 13 Table Recognition
-- Next: Phase 14 Diagram Extraction
+- Complete: Phase 14 Diagram Extraction
+- Next: Phase 15 Structured JSON Generation
 
 Implementation is being developed one feature at a time.
 
@@ -52,10 +53,10 @@ Implemented:
 - Text Recognition
 - Formula Recognition
 - Table Recognition
+- Diagram Extraction
 
 Planned:
 
-- Diagram Extraction
 - Structured JSON Generation
 - LaTeX Generation
 - LaTeX Validation
@@ -445,7 +446,47 @@ Out of scope for Phase 13:
 
 Next:
 
-- Phase 14 Diagram Extraction
+- Phase 15 Structured JSON Generation
+
+---
+
+# Phase 14 Status
+
+Phase 14 Diagram Extraction is complete.
+
+Implemented scope:
+
+- Data structure: `DiagramRegion` — immutable `@dataclass(frozen=True)` with fields `bbox: Tuple[float, float, float, float]`, `image: PIL.Image.Image`, and `source_page: int` (defaults to `0`).
+- Extraction function: `extract_diagram_region(page_image, bbox, source_page=0) -> DiagramRegion` — validates inputs, normalises float bbox coordinates using the same floor/ceil clamping contract as Phase 10 `OCRRouter._crop_region`, crops the page image, and returns an immutable `DiagramRegion`.
+- Safe bbox normalisation: float coordinates are floor/ceil-normalised and clamped to image boundaries `(0, 0, width, height)` with a minimum 1×1 crop guarantee for images with positive dimensions.
+- PIL image cropping: the cropped `PIL.Image.Image` is stored inside `DiagramRegion.image`.
+- Input validation: `TypeError` for non-PIL `page_image`; `ValueError` for `bbox` with length ≠ 4.
+- Original bbox preserved: `DiagramRegion.bbox` stores the original (pre-clamping) float coordinates verbatim.
+- `source_page` preservation: the zero-based page index is stored as-is and defaults to `0`.
+- Architecture isolation: no changes were made to `LayoutRegionType`, `OCRRouter`, `recognizer`, `config/default.yaml`, `pipeline`, or `structurer`. No diagram OCR or classification engine was introduced.
+
+Latest verification:
+
+```text
+pytest Phase 14 focused: 16/16 passed
+pytest Full suite:       136/136 passed
+Manual verification:     16/16 passed
+Commit: faef469
+```
+
+Out of scope for Phase 14:
+
+- Automatic diagram classification / `LayoutRegionType.DIAGRAM`
+- `OCRRouter` diagram task
+- New OCR engine
+- Pipeline and structurer integration
+- Structured JSON Generation (Phase 15)
+- LaTeX generation
+- Preview/export
+
+Next:
+
+- Phase 15 Structured JSON Generation
 
 ---
 
