@@ -29,7 +29,8 @@ Current Phase:
 - Complete: Phase 13 Table Recognition
 - Complete: Phase 14 Diagram Extraction
 - Complete: Phase 15 Structured JSON Generation
-- Next: Phase 16 LaTeX Generation
+- Complete: Phase 16 LaTeX Generation
+- Next: Phase 17 LaTeX Validation
 
 Implementation is being developed one feature at a time.
 
@@ -56,10 +57,10 @@ Implemented:
 - Table Recognition
 - Diagram Extraction
 - Structured JSON Generation
+- LaTeX Generation
 
 Planned:
 
-- LaTeX Generation
 - LaTeX Validation
 - HTML Preview
 - PDF Preview
@@ -529,6 +530,45 @@ Out of scope for Phase 15:
 Next:
 
 - Phase 16 LaTeX Generation
+
+---
+
+# Phase 16 Status
+
+Phase 16 LaTeX Generation is complete.
+
+Implemented scope:
+
+- Public API: Exposes `generate_latex(doc: StructuredDocument) -> str` as the single entry point.
+- Normal text LaTeX escaping: Safely translates control characters (e.g., `&`, `%`, `$`, `#`, `_`, `{`, `}`, `~`, `^`, `\`) to their LaTeX equivalents for plain text ContentItems.
+- Verbatim science preservation: Math/science/chemistry formula content (including subscripts `_`, superscripts `^`, `\frac`, `\sqrt`, Greek letters, arrows, and integrals) is written exactly verbatim without escaping.
+- Inline and display formulas: Standard formulas are automatically wrapped in `$ ... $`. Delimited display math or equations (e.g., `\[ ... \]`, `$$ ... $$`, `\begin{equation}`) are preserved as-is without double-wrapping.
+- Logical ordering: Preserves the exact page index, question order, and option sequence parsed from the StructuredDocument.
+- Custom question/option labels: Renders custom question headers using `\item[\textbf{...}]` and extracts/cleans MCQ labels (e.g. `(A)`, `B)`, `C.`) to support exact original styling.
+- Relative diagram paths: Emits diagrams as relative path strings (e.g. `\includegraphics[width=0.8\textwidth]{images/diagram_001.png}`) without escaping underscores in diagram IDs.
+- Local execution isolation: Operates fully offline without file-system access, image export, PDF compilation, or preview rendering in this phase.
+- No separate LaTeX AST/DTO: Converts StructuredDocument directly to LaTeX string without unnecessary layers.
+
+Latest verification:
+
+```text
+pytest Phase 16 focused: 33/33 passed
+pytest Full suite:       286/286 passed
+Manual verification:     33/33 checks passed
+Commit: d5b0ecb
+```
+
+Out of scope for Phase 16:
+
+- pdflatex execution/compile pipeline
+- Image file export
+- Download/export packaging
+- Pipeline integration
+- Preview
+
+Next:
+
+- Phase 17 LaTeX Validation
 
 ---
 
