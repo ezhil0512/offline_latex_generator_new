@@ -28,7 +28,8 @@ Current Phase:
 - Complete: Phase 12 Formula Recognition
 - Complete: Phase 13 Table Recognition
 - Complete: Phase 14 Diagram Extraction
-- Next: Phase 15 Structured JSON Generation
+- Complete: Phase 15 Structured JSON Generation
+- Next: Phase 16 LaTeX Generation
 
 Implementation is being developed one feature at a time.
 
@@ -54,10 +55,10 @@ Implemented:
 - Formula Recognition
 - Table Recognition
 - Diagram Extraction
+- Structured JSON Generation
 
 Planned:
 
-- Structured JSON Generation
 - LaTeX Generation
 - LaTeX Validation
 - HTML Preview
@@ -487,6 +488,47 @@ Out of scope for Phase 14:
 Next:
 
 - Phase 15 Structured JSON Generation
+
+---
+
+# Phase 15 Status
+
+Phase 15 Structured JSON Generation is complete.
+
+Implemented scope:
+
+- Data structures: Immutable DTOs `ContentItem`, `StructuredOption`, and `StructuredQuestion`. `StructuredDocument` serves as the top-level container holding questions, preamble items, and in-memory diagram PIL images.
+- Content item kinds: Restricted exclusively to `"text"`, `"formula"`, and `"diagram"`. No option groups or intermediate kinds are used.
+- Ordered question/option body representation: All contents of a question stem and MCQ options are stored in their logical/document order using `block_index` and `bbox` coordinates.
+- Preserved formula LaTeX: Formula regions hold pre-computed LaTeX strings verbatim (no internal OCR routing or engine dependency added to the structurer).
+- Stable diagram ID naming: Automatically assigns sequential diagram IDs (`diagram_001`, `diagram_002`, ...) in document order.
+- In-memory diagram preservation: Extracted diagram images are cached in `StructuredDocument.diagrams` in memory and are not written to disk in this phase.
+- Exact diagram position tracking: A diagram between question text and options stays in `StructuredQuestion.body`. A diagram inside option A/B/C/D stays inside that `StructuredOption.body`.
+- JSON-safe serialization: `document_to_dict()` and `document_to_json()` convert the structured document to a standard JSON tree, replacing PIL Image objects with their string IDs.
+- Multi-page context: Accepts page index / page grouping as builder input context, preserving the multi-page structure without modifying frozen Phase 7–14 DTOs.
+- Pure isolation: No pipeline orchestration, LaTeX generation, file-system image export, or preview/export integration was added.
+
+Latest verification:
+
+```text
+pytest Phase 15 focused: 117/117 passed
+pytest Full suite:       253/253 passed
+Manual verification:     68/68 checks passed
+Commit: 6087f07
+```
+
+Out of scope for Phase 15:
+
+- LaTeX generation
+- Image file export
+- Preview
+- Download/export packaging
+- Pipeline orchestration
+- New OCR engines
+
+Next:
+
+- Phase 16 LaTeX Generation
 
 ---
 
