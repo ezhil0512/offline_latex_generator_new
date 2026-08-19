@@ -1,3 +1,4 @@
+from pathlib import Path
 from flask import Flask
 from offline_latex_generator.config import config
 from offline_latex_generator.utils.logger import logger
@@ -5,7 +6,12 @@ from offline_latex_generator.web.workspace_routes import workspace_bp
 
 def create_app() -> Flask:
     """Application factory for Offline LaTeX Generator."""
-    app = Flask(__name__)
+    pkg_dir = Path(__file__).resolve().parent
+    app = Flask(
+        __name__,
+        template_folder=str(pkg_dir / "templates"),
+        static_folder=str(pkg_dir / "static"),
+    )
     
     # Configure Flask app defaults
     app.config["MAX_CONTENT_LENGTH"] = config.get("server.max_upload_size_mb") * 1024 * 1024

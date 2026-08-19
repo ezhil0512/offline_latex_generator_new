@@ -39,6 +39,6 @@ class ImagePreprocessor:
 
         if binarize:
             grayscale = ImageOps.grayscale(processed)
-            processed = grayscale.point(lambda p: 255 if p > 127 else 0, mode="1")
+            processed = grayscale.point(lambda p: 255 if p > 127 else 0, mode="L")
 
         return processed

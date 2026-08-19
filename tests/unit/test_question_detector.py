@@ -23,3 +23,16 @@ def test_detect_question_boundaries_handles_question_prefixes():
     boundaries = detect_question_boundaries(blocks)
 
     assert boundaries == [0, 1]
+
+
+def test_detect_question_boundaries_handles_unspaced_ocr_question_numbers():
+    blocks = [
+        OCRTextBlock(text="26.A thin prism P of angle of prism 4 and"),
+        OCRTextBlock(text="refractive index 1.54 is combined with another"),
+        OCRTextBlock(text="27)Which of the following is true?"),
+    ]
+
+    boundaries = detect_question_boundaries(blocks)
+
+    assert boundaries == [0, 2]
+

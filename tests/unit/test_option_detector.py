@@ -63,7 +63,7 @@ class TestDetectMCQOptions:
         assert options[2].label == "C"
 
     def test_detect_lowercase_options(self):
-        """Test that lowercase labels are normalized to uppercase."""
+        """Test that lowercase labels preserve their original lowercase casing."""
         blocks = [
             OCRTextBlock(text="(a) First option"),
             OCRTextBlock(text="b) Second option"),
@@ -73,8 +73,9 @@ class TestDetectMCQOptions:
         options = detect_mcq_options(blocks)
 
         assert len(options) == 3
-        assert all(opt.label in ["A", "B", "C"] for opt in options)
-        assert options[0].label == "A"
+        assert options[0].label == "a"
+        assert options[1].label == "b"
+        assert options[2].label == "c"
 
     def test_ignore_non_option_blocks(self):
         """Test that non-option blocks are ignored."""
@@ -194,6 +195,21 @@ class TestDetectMCQOptions:
 
         assert options[0].text == "(A) This is the full option text"
         assert options[1].text == "B) Another full option text"
+
+    def test_detect_ocr_variant_options(self):
+        """Test detection of common OCR variants (b5.33, b)5.33, (b 5.33, B5.33, etc.)."""
+        blocks = [
+            OCRTextBlock(text="(b) 5.33"),
+            OCRTextBlock(text="b5.33"),
+            OCRTextBlock(text="b)5.33"),
+            OCRTextBlock(text="(b 5.33"),
+            OCRTextBlock(text="B5.33"),
+        ]
+
+        options = detect_mcq_options(blocks)
+
+        assert len(options) == 5
+        assert [opt.label for opt in options] == ["b", "b", "b", "b", "B"]
 
 
 class TestGroupOptionsByQuestion:
@@ -373,3 +389,57 @@ class TestEdgeCases:
         assert options[0].label == "A"
         assert options[1].label == "C"
         assert options[2].label == "Z"
+
+
+class TestOptionAssociation:
+    """Test spatial and structural option label-value block association."""
+
+    def test_option_label_and_value_in_same_block(self):
+        blocks = [
+            OCRTextBlock(text="(a) 3"),
+            OCRTextBlock(text="(b) 5.33"),
+        ]
+        options = detect_mcq_options(blocks)
+        assert len(options) == 2
+        assert options[0].label == "a"
+        assert options[0].text == "(a) 3"
+        assert options[0].block_indices == (0,)
+
+    def test_option_label_in_one_block_and_value_in_next_block(self):
+        blocks = [
+            OCRTextBlock(text="(c)"),
+            OCRTextBlock(text="2.6"),
+        ]
+        options = detect_mcq_options(blocks)
+        assert len(options) == 1
+        assert options[0].label == "c"
+        assert options[0].text == "(c) 2.6"
+        assert options[0].block_indices == (0, 1)
+
+    def test_multiple_consecutive_options_split_across_blocks(self):
+        blocks = [
+            OCRTextBlock(text="(a)"),
+            OCRTextBlock(text="10"),
+            OCRTextBlock(text="(b)"),
+            OCRTextBlock(text="20"),
+        ]
+        options = detect_mcq_options(blocks)
+        assert len(options) == 2
+        assert options[0].label == "a"
+        assert options[0].text == "(a) 10"
+        assert options[0].block_indices == (0, 1)
+        assert options[1].label == "b"
+        assert options[1].text == "(b) 20"
+        assert options[1].block_indices == (2, 3)
+
+    def test_unrelated_question_text_after_option_not_merged(self):
+        blocks = [
+            OCRTextBlock(text="(d) 4"),
+            OCRTextBlock(text="27. Next question start"),
+        ]
+        options = detect_mcq_options(blocks)
+        assert len(options) == 1
+        assert options[0].label == "d"
+        assert options[0].text == "(d) 4"
+        assert options[0].block_indices == (0,)
+

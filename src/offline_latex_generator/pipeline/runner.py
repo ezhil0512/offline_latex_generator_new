@@ -11,7 +11,10 @@ from pathlib import Path
 from typing import List, Union
 
 from offline_latex_generator.diagram_extractor import DiagramRegion
-from offline_latex_generator.formula_reconstructor import merge_formula_fragments
+from offline_latex_generator.formula_reconstructor import (
+    FormulaRegion,
+    merge_formula_fragments,
+)
 from offline_latex_generator.layout_detector import (
     OCRBlock,
     detect_layout,
@@ -31,30 +34,29 @@ from offline_latex_generator.structurer import (
 from offline_latex_generator.utils.logger import logger
 
 
-def run_pipeline(file_path: Union[str, Path]) -> StructuredDocument:
+def run_pipeline(job_id: str, filename: str) -> StructuredDocument:
     """Execute the offline document processing pipeline on an uploaded file.
 
     Parameters
     ----------
-    file_path:
-        Path to the uploaded PDF or image file inside the job workspace.
+    job_id:
+        Identifier of the active job workspace.
+    filename:
+        Name of the uploaded file inside the workspace.
 
     Returns
     -------
     StructuredDocument
         The canonical Phase 15 intermediate representation.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file '{path.name}' does not exist.")
-
-    ext = path.suffix.lower()
+    ext = Path(filename).suffix.lower()
 
     # 1. Document Loading (Phase 4)
     if ext == ".pdf":
-        images = PDFLoader().load(path)
+        images = PDFLoader().load_pdf(job_id, filename)
     else:
-        images = ImageLoader().load(path)
+        img = ImageLoader().load_image(job_id, filename)
+        images = [img] if img is not None else []
 
     if not images:
         return StructuredDocument(pages=0)
@@ -97,7 +99,10 @@ def run_pipeline(file_path: Union[str, Path]) -> StructuredDocument:
                 q["options"] = matched_opts
 
         # Phase 9 & 12: Formula Reconstruction & Math OCR Routing
-        formula_regions = merge_formula_fragments(ocr_blocks)
+        merged_layout_elements = merge_formula_fragments(layout_elements)
+        formula_regions = [
+            el for el in merged_layout_elements if isinstance(el, FormulaRegion)
+        ]
         formula_latex_map = {}
         for f_region in formula_regions:
             try:
@@ -114,7 +119,7 @@ def run_pipeline(file_path: Union[str, Path]) -> StructuredDocument:
         page_elements_list.append(
             PageElements(
                 page_index=page_idx,
-                layout_elements=layout_elements,
+                layout_elements=merged_layout_elements,
                 diagram_regions=diagram_regions,
                 formula_latex=formula_latex_map,
                 question_regions=q_regions,

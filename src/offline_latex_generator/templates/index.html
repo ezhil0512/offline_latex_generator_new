@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline LaTeX Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-logo">TeX</div>
+      <div class="brand-text">
+        <h1>Offline LaTeX Generator</h1>
+        <p>Convert scanned question papers to compilable LaTeX — 100% Offline</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-reset-header" class="btn btn-outline btn-sm hidden">
+        + New Document
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="error-banner hidden" role="alert">
+      <span id="error-message">An error occurred.</span>
+      <button id="btn-close-error" class="btn-close">&times;</button>
+    </div>
+
+    <!-- 1. Upload View -->
+    <section id="upload-view" class="view-section">
+      <div class="card upload-card">
+        <div id="drop-zone" class="drop-zone">
+          <div class="drop-icon">📄</div>
+          <h2>Upload Question Paper</h2>
+          <p>Drag &amp; drop a PDF or image file here, or click to browse</p>
+          <span class="file-formats">Supported formats: PDF, PNG, JPG, JPEG, BMP, TIFF</span>
+          <input type="file" id="file-input" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif" class="hidden-input" />
+          <button type="button" id="btn-browse" class="btn btn-primary btn-lg">Browse File</button>
+        </div>
+
+        <div id="file-card" class="file-card hidden">
+          <div class="file-info">
+            <span class="file-icon">📑</span>
+            <div class="file-details">
+              <span id="file-name" class="file-name">filename.pdf</span>
+              <span id="file-size" class="file-size">0 KB</span>
+            </div>
+          </div>
+          <div class="file-card-actions">
+            <button id="btn-remove-file" class="btn btn-text">Remove</button>
+            <button id="btn-process" class="btn btn-success btn-lg">Convert to LaTeX &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Processing View -->
+    <section id="processing-view" class="view-section hidden">
+      <div class="card processing-card">
+        <div class="spinner"></div>
+        <h2>Processing Question Paper</h2>
+        <p id="processing-status-text">Analyzing layout and extracting formulas...</p>
+
+        <div class="stepper">
+          <div id="step-upload" class="step step-active">
+            <span class="step-num">1</span>
+            <span class="step-label">Upload</span>
+          </div>
+          <div id="step-ocr" class="step">
+            <span class="step-num">2</span>
+            <span class="step-label">Layout &amp; OCR</span>
+          </div>
+          <div id="step-struct" class="step">
+            <span class="step-num">3</span>
+            <span class="step-label">Structuring</span>
+          </div>
+          <div id="step-preview" class="step">
+            <span class="step-num">4</span>
+            <span class="step-label">Rendering</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Workspace Results View -->
+    <section id="workspace-view" class="view-section hidden">
+      <div class="workspace-container card">
+        
+        <!-- Workspace Header / Toolbar -->
+        <div class="workspace-toolbar">
+          <div class="tab-group" role="tablist">
+            <button id="tab-btn-html" class="tab-btn active" role="tab" aria-selected="true">
+              👁️ HTML Preview
+            </button>
+            <button id="tab-btn-pdf" class="tab-btn" role="tab" aria-selected="false">
+              📄 PDF Preview
+            </button>
+            <button id="tab-btn-latex" class="tab-btn" role="tab" aria-selected="false">
+              💻 LaTeX Code
+            </button>
+          </div>
+
+          <div class="workspace-actions">
+            <button id="btn-copy-latex" class="btn btn-outline btn-sm" title="Copy LaTeX code to clipboard">
+              📋 Copy LaTeX
+            </button>
+            <button id="btn-download-tex" class="btn btn-outline btn-sm" title="Download .tex file">
+              💾 Download .tex
+            </button>
+            <button id="btn-reset-workspace" class="btn btn-danger btn-sm" title="Delete workspace and start new job">
+              🔄 New Document
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab Panels -->
+        <div class="tab-content">
+          
+          <!-- HTML Preview Tab -->
+          <div id="panel-html" class="tab-panel active" role="tabpanel">
+            <iframe id="iframe-html" class="preview-iframe" title="HTML Preview"></iframe>
+          </div>
+
+          <!-- PDF Preview Tab -->
+          <div id="panel-pdf" class="tab-panel hidden" role="tabpanel">
+            <iframe id="iframe-pdf" class="preview-iframe" title="PDF Preview"></iframe>
+          </div>
+
+          <!-- LaTeX Code Tab -->
+          <div id="panel-latex" class="tab-panel hidden" role="tabpanel">
+            <pre class="code-container"><code id="code-latex">LaTeX source will appear here...</code></pre>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Application Logic -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

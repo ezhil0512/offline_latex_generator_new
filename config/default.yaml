@@ -25,7 +25,7 @@ pipeline:
   preprocessing:
     deskew: true
     enhance_contrast: true
-    binarize: true
+    binarize: false
 
 pdf:
   poppler_path: null              # Optional path to Poppler bin directory; POPPLER_PATH overrides this.

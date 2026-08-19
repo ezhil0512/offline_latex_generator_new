@@ -250,6 +250,10 @@ class TestMultipleLayoutElements:
         blocks = self._make_blocks([("Question 2: Name the largest ocean.", 0.88)])
         assert detect_layout(blocks)[0].region_type == LayoutRegionType.QUESTION
 
+    def test_unspaced_ocr_question_classified_correctly(self):
+        blocks = self._make_blocks([("26.A thin prism P of angle of prism", 0.94)])
+        assert detect_layout(blocks)[0].region_type == LayoutRegionType.QUESTION
+
     def test_option_parentheses_classified_correctly(self):
         blocks = self._make_blocks([("(A) Chlorophyll absorbs sunlight", 0.85)])
         assert detect_layout(blocks)[0].region_type == LayoutRegionType.OPTION

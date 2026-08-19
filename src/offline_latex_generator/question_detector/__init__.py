@@ -36,7 +36,7 @@ def detect_question_boundaries(blocks: Sequence[OCRTextBlock]) -> List[int]:
 
 def _looks_like_question_start(text: str) -> bool:
     patterns = [
-        r"^\s*\d+\s*[\.)]\s+",
+        r"^\s*\d+\s*[\.)](?:\s+|$|[A-Za-z])",
         r"^\s*question\s+\d+\s*[:\-]",
     ]
 

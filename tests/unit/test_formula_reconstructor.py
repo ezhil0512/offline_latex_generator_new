@@ -98,3 +98,44 @@ def test_negative_confidence():
     
     assert len(result) == 1
     assert result[0].confidence == -1.0
+
+
+def test_explicit_math_and_degree_symbols_detected():
+    """Test that explicit math symbols (° , _ , ^ , \\frac) trigger formula region detection."""
+    el_deg = LayoutElement(LayoutRegionType.TEXT, (0,), (0, 0, 10, 10), 0.9, ("45°",))
+    res_deg = merge_formula_fragments([el_deg])
+    assert len(res_deg) == 1
+    assert isinstance(res_deg[0], FormulaRegion)
+
+    el_sub = LayoutElement(LayoutRegionType.TEXT, (1,), (0, 0, 10, 10), 0.9, ("x_1",))
+    res_sub = merge_formula_fragments([el_sub])
+    assert len(res_sub) == 1
+    assert isinstance(res_sub[0], FormulaRegion)
+
+    el_sup = LayoutElement(LayoutRegionType.TEXT, (2,), (0, 0, 10, 10), 0.9, ("10^3",))
+    res_sup = merge_formula_fragments([el_sup])
+    assert len(res_sup) == 1
+    assert isinstance(res_sup[0], FormulaRegion)
+
+    el_frac = LayoutElement(LayoutRegionType.TEXT, (3,), (0, 0, 10, 10), 0.9, (r"\frac{a}{b}",))
+    res_frac = merge_formula_fragments([el_frac])
+    assert len(res_frac) == 1
+    assert isinstance(res_frac[0], FormulaRegion)
+
+
+def test_plain_text_and_decimals_negative_tests():
+    """Test that ordinary English text, numbers, and decimals do NOT trigger formula region detection."""
+    el1 = LayoutElement(LayoutRegionType.TEXT, (0,), (0, 0, 10, 10), 0.9, ("The refractive index is 1.54.",))
+    res1 = merge_formula_fragments([el1])
+    assert len(res1) == 1
+    assert isinstance(res1[0], LayoutElement)
+
+    el2 = LayoutElement(LayoutRegionType.TEXT, (1,), (0, 0, 10, 10), 0.9, ("There are 45 students in the class.",))
+    res2 = merge_formula_fragments([el2])
+    assert len(res2) == 1
+    assert isinstance(res2[0], LayoutElement)
+
+    el3 = LayoutElement(LayoutRegionType.TEXT, (2,), (0, 0, 10, 10), 0.9, ("prism P2 with index 1.72",))
+    res3 = merge_formula_fragments([el3])
+    assert len(res3) == 1
+    assert isinstance(res3[0], LayoutElement)

@@ -94,7 +94,7 @@ class LayoutElement:
 # Precompiled patterns — identical to question_detector heuristics so
 # classification is consistent across the pipeline.
 _RE_QUESTION = re.compile(
-    r"^\s*\d+\s*[.)]\s+|^\s*question\s+\d+\s*[:\-]",
+    r"^\s*\d+\s*[\.)](?:\s+|$|[A-Za-z])|^\s*question\s+\d+\s*[:\-]",
     re.IGNORECASE,
 )
 _RE_OPTION = re.compile(

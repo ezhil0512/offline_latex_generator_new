@@ -17,7 +17,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, Optional
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, render_template, request
 
 from offline_latex_generator.cleanup.manager import workspace_manager
 from offline_latex_generator.config import config
@@ -59,24 +59,20 @@ def remove_job_document(job_id: str) -> None:
 
 @workspace_bp.route("/", methods=["GET"])
 def index():
-    """Serve the future frontend index.html if present, or API metadata."""
-    templates_dir = Path(__file__).resolve().parents[1] / "templates"
-    index_file = templates_dir / "index.html"
-    if index_file.exists():
-        from flask import render_template
-
+    """Serve the frontend index.html if present, or API metadata."""
+    try:
         return render_template("index.html")
-
-    return (
-        jsonify(
-            {
-                "name": "Offline LaTeX Generator API",
-                "status": "healthy",
-                "version": "0.1.0",
-            }
-        ),
-        200,
-    )
+    except Exception:
+        return (
+            jsonify(
+                {
+                    "name": "Offline LaTeX Generator API",
+                    "status": "healthy",
+                    "version": "0.1.0",
+                }
+            ),
+            200,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -210,7 +206,7 @@ def process_job(job_id):
         workspace_manager.save_manifest(job_id, manifest)
 
         # Run pipeline
-        doc = run_pipeline(file_path)
+        doc = run_pipeline(job_id, filename)
 
         # Cache StructuredDocument in job document store
         store_job_document(job_id, doc)

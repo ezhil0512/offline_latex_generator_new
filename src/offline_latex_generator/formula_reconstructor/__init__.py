@@ -25,8 +25,8 @@ class FormulaRegion:
 
 
 _RE_MATH = re.compile(
-    r"[\=\+\<\>\^\~∑√πθαβγδεζηικλμνξορστυφχψω∞∫≈≠≤≥×÷±]|(?:\b(?:sin|cos|tan|log|ln)\b)",
-    re.IGNORECASE
+    r"[\=\+\<\>\^\~\_\°∑√πθαβγδεζηικλμνξορστυφχψω∞∫≈≠≤≥×÷±]|(?:\b(?:sin|cos|tan|log|ln)\b)|\\(?:frac|sqrt|alpha|beta|theta|pi|mu|lambda|degree|angle)",
+    re.IGNORECASE,
 )
 
 

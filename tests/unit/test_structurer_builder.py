@@ -561,3 +561,13 @@ def test_non_mcq_question_has_empty_options():
     qr = _q_region(0, 1, "1. Explain Newton's 3rd law.", options=[])
     doc = build_document([_page(layout_elements=[el], question_regions=[qr])])
     assert doc.questions[0].options == ()
+
+
+def test_question_prefix_stripped_from_body():
+    el = _layout_el(LayoutRegionType.QUESTION, 0, "26.A thin prism P of angle of prism")
+    qr = _q_region(0, 1, "26.A thin prism P of angle of prism")
+    doc = build_document([_page(layout_elements=[el], question_regions=[qr])])
+    assert len(doc.questions) == 1
+    assert doc.questions[0].question_number == "26"
+    assert doc.questions[0].body[0].text == "A thin prism P of angle of prism"
+

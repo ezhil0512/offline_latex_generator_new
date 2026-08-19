@@ -91,21 +91,20 @@ _RE_STRIP_LABEL = re.compile(
 
 
 def _render_option(opt: StructuredOption) -> str:
-    """Render a StructuredOption, stripping duplicate label prefixes if present."""
+    """Render a StructuredOption, stripping duplicate label prefixes if present.
+
+    Regardless of the OCR-detected delimiter style ((a), a), a.), the option label
+    is always emitted in the canonical parenthesized form (label) so that all options
+    in the generated LaTeX are consistently styled.
+    """
+    # Canonical label: always parenthesized, original case preserved
+    label_fmt = f"({opt.label})"
+
     if not opt.body:
-        return rf"\item[\textbf{{{opt.label}.}}]"
+        return rf"\item[{label_fmt}]"
 
     first_item = opt.body[0]
     if first_item.kind == "text" and first_item.text:
-        orig = first_item.text.strip()
-        # Detect original label styling
-        if orig.startswith("("):
-            label_fmt = f"({opt.label})"
-        elif ")" in orig.split(None, 1)[0]:
-            label_fmt = f"{opt.label})"
-        else:
-            label_fmt = f"{opt.label}."
-
         cleaned_text = _RE_STRIP_LABEL.sub("", first_item.text)
         cleaned_item = ContentItem(
             kind="text",
@@ -121,13 +120,13 @@ def _render_option(opt: StructuredOption) -> str:
             render_content_item(ci) for ci in opt.body[1:]
         ]
         body_str = " ".join(parts for parts in rendered_items if parts).strip()
-        return rf"\item[\textbf{{{label_fmt}}}] {body_str}"
+        return rf"\item[{label_fmt}] {body_str}"
 
     # Fallback if the first item is a formula or diagram
     body_str = " ".join(
         parts for parts in (render_content_item(ci) for ci in opt.body) if parts
     ).strip()
-    return rf"\item[\textbf{{{opt.label}.}}] {body_str}"
+    return rf"\item[{label_fmt}] {body_str}"
 
 
 def _render_body(items: Sequence[ContentItem]) -> str:
@@ -147,10 +146,10 @@ def _render_question(q: StructuredQuestion) -> str:
     question_label = q.question_number
     # Format custom label cleanly
     if question_label.isdigit():
-        q_item = rf"\item[\textbf{{{question_label}.}}] {body_str}"
+        q_item = rf"\item[{question_label}.] {body_str}"
     else:
         # If it already has formatting (e.g. "Q1:"), keep as-is
-        q_item = rf"\item[\textbf{{{question_label}}}] {body_str}"
+        q_item = rf"\item[{question_label}] {body_str}"
 
     if not q.options:
         return q_item
@@ -185,7 +184,7 @@ def generate_latex(doc: StructuredDocument) -> str:
         r"\usepackage{graphicx}",
         r"\usepackage{amsmath}",
         r"\usepackage{amssymb}",
-        r"\usepackage{enumerate}",
+        r"\usepackage{enumitem}",
         "",
         r"\begin{document}",
     ]

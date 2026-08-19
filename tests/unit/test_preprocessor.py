@@ -100,3 +100,31 @@ def test_process_uses_loader_output(monkeypatch, tmp_path):
     assert isinstance(loaded, Image.Image)
     assert isinstance(processed, Image.Image)
     assert processed.size == loaded.size
+
+
+def test_binarize_outputs_uint8_grayscale_and_valid_values(monkeypatch):
+    import numpy as np
+
+    monkeypatch.setattr(
+        config,
+        "_config_data",
+        {
+            "pipeline": {
+                "preprocessing": {
+                    "deskew": False,
+                    "enhance_contrast": False,
+                    "binarize": True,
+                }
+            }
+        },
+    )
+
+    image = Image.new("RGB", (50, 50), color=(200, 200, 200))
+    processor = ImagePreprocessor()
+    processed = processor.process(image)
+
+    assert processed.mode == "L"
+    arr = np.array(processed)
+    assert arr.dtype == np.uint8
+    assert set(np.unique(arr)).issubset({0, 255})
+

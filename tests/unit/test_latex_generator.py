@@ -227,7 +227,7 @@ class TestQuestionMCQStructure:
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        assert r"\item[\textbf{Q3:}]" in latex
+        assert r"\item[Q3:]" in latex
         assert "What is the speed of light?" in latex
 
     def test_numeric_question_adds_dot_to_label(self):
@@ -239,48 +239,68 @@ class TestQuestionMCQStructure:
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        assert r"\item[\textbf{5.}]" in latex
+        assert r"\item[5.]" in latex
 
     def test_option_formatting_parentheses(self):
+        """Already-parenthesized label stays (A)."""
         opt = _option("A", "(A) Hydrogen")
         q = StructuredQuestion(question_number="1", body=(), options=(opt,))
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        # Parentheses style (A) preserved, duplicate prefix stripped
-        assert r"\item[\textbf{(A)}]" in latex
+        assert r"\item[(A)]" in latex
         assert "Hydrogen" in latex
         assert "(A) Hydrogen" not in latex
 
-    def test_option_formatting_closing_paren(self):
+    def test_option_formatting_closing_paren_normalised(self):
+        """Closing-paren style B) is normalised to canonical (B)."""
         opt = _option("B", "B) Helium")
         q = StructuredQuestion(question_number="1", body=(), options=(opt,))
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        assert r"\item[\textbf{B)}]" in latex
+        assert r"\item[(B)]" in latex
+        assert r"\item[B)]" not in latex
         assert "Helium" in latex
         assert "B) Helium" not in latex
 
-    def test_option_formatting_period(self):
+    def test_option_formatting_period_normalised(self):
+        """Period style C. is normalised to canonical (C)."""
         opt = _option("C", "C. Lithium")
         q = StructuredQuestion(question_number="1", body=(), options=(opt,))
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        assert r"\item[\textbf{C.}]" in latex
+        assert r"\item[(C)]" in latex
+        assert r"\item[C.]" not in latex
         assert "Lithium" in latex
         assert "C. Lithium" not in latex
 
-    def test_option_formatting_fallback(self):
-        """If option first item is not text, fall back to standard labeling."""
+    def test_option_formatting_fallback_normalised(self):
+        """Fallback (diagram body) label is normalised to canonical (D)."""
         opt = StructuredOption(label="D", body=(_diagram_item("diagram_opt"),))
         q = StructuredQuestion(question_number="1", body=(), options=(opt,))
         doc = StructuredDocument(pages=1)
         doc.questions = [q]
         latex = generate_latex(doc)
-        assert r"\item[\textbf{D.}]" in latex
+        assert r"\item[(D)]" in latex
+        assert r"\item[D.]" not in latex
         assert r"\includegraphics[width=0.8\textwidth]{images/diagram_opt.png}" in latex
+
+    def test_option_label_lowercase_preserved(self):
+        """Lowercase labels are preserved exactly: (a), (b), (c), (d)."""
+        opts = [
+            _option("a", "(a) Alpha"),
+            _option("b", "b) Beta"),
+            _option("c", "c. Gamma"),
+            _option("d", "(d) Delta"),
+        ]
+        q = StructuredQuestion(question_number="1", body=(), options=tuple(opts))
+        doc = StructuredDocument(pages=1)
+        doc.questions = [q]
+        latex = generate_latex(doc)
+        for label in ["a", "b", "c", "d"]:
+            assert rf"\item[({label})]" in latex
 
 
 # ===========================================================================
@@ -316,9 +336,9 @@ class TestDiagramPositioning:
         doc.questions = [q]
         latex = generate_latex(doc)
 
-        idx_opt_start = latex.find(r"\item[\textbf{(A)}]")
+        idx_opt_start = latex.find(r"\item[(A)]")
         idx_diag = latex.find("diagram_inside_opt")
-        idx_opt_end = latex.find(r"\item[\textbf{B.}]") # next item / enumerate end
+        idx_opt_end = latex.find(r"\item[(B)]") # next item / enumerate end
 
         assert idx_opt_start < idx_diag
         if idx_opt_end != -1:
@@ -388,3 +408,10 @@ class TestScienceContent:
         assert r"98\% yield" in latex
         # Verbatim formula
         assert r"$H_2 + O_2 \rightarrow H_2O$" in latex
+
+    def test_header_uses_enumitem_package(self):
+        """Verify generated LaTeX header uses enumitem and not enumerate."""
+        doc = StructuredDocument(pages=1)
+        latex = generate_latex(doc)
+        assert r"\usepackage{enumitem}" in latex
+        assert r"\usepackage{enumerate}" not in latex

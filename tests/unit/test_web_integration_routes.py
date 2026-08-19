@@ -115,28 +115,13 @@ class TestIndexRoute:
     def test_get_index_returns_200(self, client):
         res = client.get("/")
         assert res.status_code == 200
-        data = res.json
-        assert "status" in data
-        assert data["status"] == "healthy"
+        assert "text/html" in res.content_type
+        assert "<!DOCTYPE html>" in res.text
 
-    def test_get_index_when_template_exists(self, client, monkeypatch, tmp_path):
-        # Create temporary templates/index.html
-        templates_dir = (
-            Path(__file__).resolve().parents[2]
-            / "src"
-            / "offline_latex_generator"
-            / "templates"
-        )
-        templates_dir.mkdir(parents=True, exist_ok=True)
-        index_html = templates_dir / "index.html"
-        try:
-            index_html.write_text("<h1>Frontend Placeholder</h1>")
-            res = client.get("/")
-            assert res.status_code == 200
-            assert b"Frontend Placeholder" in res.data
-        finally:
-            if index_html.exists():
-                index_html.unlink()
+    def test_get_index_when_template_exists(self, client):
+        res = client.get("/")
+        assert res.status_code == 200
+        assert "Offline LaTeX Generator" in res.text
 
 
 # ---------------------------------------------------------------------------
@@ -187,7 +172,30 @@ class TestProcessJobRoute:
             assert data["status"] == "completed"
             assert data["pages"] == 1
             assert data["questions_count"] == 1
-            mock_pipeline.assert_called_once()
+            mock_pipeline.assert_called_once_with(job_id, "sample.png")
+
+    def test_run_pipeline_real_image_loader(self, client):
+        # 1. Create job
+        create_res = client.post("/api/jobs")
+        job_id = create_res.json["job_id"]
+
+        # 2. Upload valid PNG image
+        buf = io.BytesIO()
+        Image.new("RGB", (20, 20), color="white").save(buf, format="PNG")
+        buf.seek(0)
+
+        upload_res = client.post(
+            f"/api/jobs/{job_id}/upload",
+            data={"file": (buf, "valid.png")},
+            content_type="multipart/form-data",
+        )
+        assert upload_res.status_code == 200
+
+        # 3. Call process with OCRRouter mocked to test real ImageLoader call cleanly
+        with patch("offline_latex_generator.pipeline.runner.OCRRouter.route", return_value=[]):
+            proc_res = client.post(f"/api/jobs/{job_id}/process")
+            assert proc_res.status_code == 200
+            assert proc_res.json["status"] == "completed"
 
     def test_process_job_failure_returns_500(self, client):
         create_res = client.post("/api/jobs")

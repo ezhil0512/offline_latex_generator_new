@@ -324,6 +324,15 @@ def _parse_question_number(question_text: str, fallback: int) -> str:
     return str(fallback)
 
 
+def _strip_question_prefix(text: str) -> str:
+    """Remove leading question number prefix (e.g. '1.', '26.', '26.A', 'Question 1:') from text."""
+    if not text:
+        return text
+    import re
+    pattern = r"^\s*(?:\d+\s*[.)\-:]|[Qq]uestion\s+\d+\s*[:\-]?)\s*"
+    return re.sub(pattern, "", text, count=1, flags=re.IGNORECASE)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -400,7 +409,10 @@ def build_document(
             q_number = _parse_question_number(question_text, question_ordinal)
 
             # Collect option block indices for exclusion from body
-            option_block_indices = {opt.block_index for opt in mcq_options}
+            option_block_indices = set()
+            for opt in mcq_options:
+                indices = getattr(opt, "block_indices", ()) or (opt.block_index,)
+                option_block_indices.update(indices)
 
             # --- Build body ContentItems ---
             body_items: List[ContentItem] = []
@@ -425,6 +437,21 @@ def build_document(
             body_items.sort(
                 key=lambda ci: ci.block_index if ci.block_index is not None else 999999
             )
+
+            # Strip leading question prefix from the first text item in question stem
+            if body_items and body_items[0].kind == "text" and body_items[0].text:
+                first_item = body_items[0]
+                stripped_text = _strip_question_prefix(first_item.text)
+                body_items[0] = ContentItem(
+                    kind=first_item.kind,
+                    text=stripped_text,
+                    latex=first_item.latex,
+                    diagram_id=first_item.diagram_id,
+                    bbox=first_item.bbox,
+                    block_index=first_item.block_index,
+                    source_page=first_item.source_page,
+                    confidence=first_item.confidence,
+                )
 
             # --- Build StructuredOption list ---
             structured_options: List[StructuredOption] = []
